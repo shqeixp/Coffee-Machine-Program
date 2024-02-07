@@ -1,0 +1,69 @@
+class CoffeeMachine:
+    def __init__(self, MENU, resources):
+        self.profit = 0.0
+        self.resources = resources
+        self.MENU = MENU
+
+    def print_report(self):
+        """Prints the current resource values."""
+        print(f"Water: {self.resources['water']}ml")
+        print(f"Milk: {self.resources['milk']}ml")
+        print(f"Coffee: {self.resources['coffee']}g")
+        print(f"Money: ${self.profit:.2f}")
+
+    def check_resources(self, drink):
+        """Check if there are enough resources to make the selected drink."""
+        for ingredient, amount in self.MENU[drink]["ingredients"].items():
+            if self.resources[ingredient] < amount:
+                print(f"Sorry, there is not enough {ingredient}.")
+                return False
+        return True
+
+    def process_coins(self, drink_cost):
+        """Prompt the user to insert coins and calculate the total amount."""
+        print("Please insert coins.")
+        quarters = int(input("Quarters: ")) * 0.25
+        dimes = int(input("Dimes: ")) * 0.10
+        nickels = int(input("Nickels: ")) * 0.05
+        pennies = int(input("Pennies: ")) * 0.01
+        total_amount = quarters + dimes + nickels + pennies
+        if total_amount < drink_cost:
+            print("Sorry, that's not enough money. Money refunded.")
+            return 0
+        change = total_amount - drink_cost
+        if change > 0:
+            print(f"Here is ${change:.2f} in change.")
+        return total_amount
+
+    def make_coffee(self, drink):
+        """Deduct resources and update profit after successful purchase."""
+        for ingredient, amount in self.MENU[drink]["ingredients"].items():
+            self.resources[ingredient] -= amount
+        self.profit += self.MENU[drink]["cost"]
+        print(f"Here is your {drink}☕☕. Enjoy!❤😎")
+
+    def run(self):
+        while True:
+            user_input = input("What would you like? (espresso/latte/cappuccino): ").lower()
+
+            if user_input == "off":
+                break  # Turn off the coffee machine
+
+            elif user_input == "report":
+                self.print_report()
+
+            elif user_input in self.MENU:
+                if self.check_resources(user_input):
+                    drink_cost = self.MENU[user_input]["cost"]
+                    coins_inserted = self.process_coins(drink_cost)
+                    if coins_inserted > 0:
+                        self.make_coffee(user_input)
+            else:
+                print("Invalid input. Please enter a valid option.")
+
+# Import required variables
+from main import MENU, resources
+
+# Instantiate the CoffeeMachine class with MENU and resources
+coffee_machine = CoffeeMachine(MENU, resources)
+coffee_machine.run()
